@@ -1,5 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'quiz_brain.dart';
 
 QuizBrain quizBrain = QuizBrain();
@@ -29,28 +29,38 @@ class QuizPage extends StatefulWidget {
 }
 
 class _QuizPageState extends State<QuizPage> {
+  List<Icon> scoreKeeper = [];
 
-  List<Icon> scoreKeeper = [
-  ];
+  void checkAnswer(bool userPickedAnswer) {
+    bool correctAnswer = quizBrain.getCorrectAnswer();
 
-  void checkAnswer(bool userPickedAnswer){
-    bool answer = quizBrain.getQuestionAnswer();
     setState(() {
-    if(userPickedAnswer == answer){
-      scoreKeeper.add(
-       Icon(Icons.check, color: Colors.green,)
-      );
-    }
-    else{
-      scoreKeeper.add(
-          Icon(Icons.close, color: Colors.red )
-      );
-    }
-      quizBrain.nextQuestion();
-    }
-    );
-  }
+      if(quizBrain.isFinished()==true){
+        Alert(
+          context: context,
+          title: 'Finished!',
+          desc: 'You\'ve reached the end of the quiz.',
+        ).show();
 
+        quizBrain.reset();
+        scoreKeeper = [];
+      }
+      else {
+        if (userPickedAnswer == correctAnswer) {
+          scoreKeeper.add(Icon(
+            Icons.check,
+            color: Colors.green,
+          ));
+        } else {
+          scoreKeeper.add(Icon(
+            Icons.close,
+            color: Colors.red,
+          ));
+        }
+        quizBrain.nextQuestion();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +99,7 @@ class _QuizPageState extends State<QuizPage> {
               ),
               onPressed: () {
                 //The user picked true.
-                  checkAnswer(true);
+                checkAnswer(true);
               },
             ),
           ),
@@ -113,13 +123,16 @@ class _QuizPageState extends State<QuizPage> {
             ),
           ),
         ),
-        //TODO: Add a Row here as your score keep
         Row(
           children: scoreKeeper,
-        ),
+        )
       ],
     );
   }
 }
 
-
+/*
+question1: 'You can lead a cow down stairs but not up stairs.', false,
+question2: 'Approximately one quarter of human bones are in the feet.', true,
+question3: 'A slug\'s blood is green.', true,
+*/
